@@ -1,0 +1,2 @@
+# diary
+um simples diário
