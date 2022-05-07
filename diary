@@ -24,6 +24,12 @@ function inicio() {
     then
         clear
         IFS= read -rp "Coloque o nome do diário que deseja criar: " nomeDoNovoDiario
+        if [ -z "$nomeDoNovoDiario" ];
+        then
+            clear
+            printf "${textoVermelho}Coloque algum nome!\n\n"
+            inicio
+        fi
         mkdir $diretorioDoScript/Diários/$nomeDoNovoDiario
         clear
         printf "${textoVermelho}Diário $nomeDoNovoDiario criado com sucesso!\n\n"
@@ -35,6 +41,12 @@ function inicio() {
         ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
         printf "\n"
         IFS= read -rp "Coloque o nome do diário que deseja entrar: " nomeDoDiario
+        if [ -z "$nomeDoDiario"];
+        then
+            clear
+            printf "${textoVermelho}Coloque algum nome!\n\n"
+            inicio
+        fi
         if [ -d $diretorioDoScript/Diários/$nomeDoDiario ];
         then
             clear
@@ -78,6 +90,12 @@ function inicio() {
         ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
         printf "\n"
         IFS= read -rp "Coloque o nome do diário que deseja apagar: " nomeDoDiarioParaApagar
+        if [ -z "$nomeDoDiarioParaApagar" ];
+        then
+            clear
+            printf "${textoVermelho}Coloque algum nome!\n\n"
+            inicio
+        fi
         if [ -d $diretorioDoScript/Diários/$nomeDoDiarioParaApagar ];
 	then
 	    srm -r $diretorioDoScript/Diários/$nomeDoDiarioParaApagar
