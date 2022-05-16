@@ -56,6 +56,12 @@ function inicio() {
             ls -p $diretorioDoScript/Diários/$nomeDoDiario | grep -v / || true
             printf "\n"
             IFS= read -rp "Qual arquivo deseja criar/editar? " nomeDoArquivo
+            if [ -z "$nomeDoArquivo" ];
+            then
+                clear
+                printf "${textoVermelho}Coloque algum nome!\n\n"
+                inicio
+            fi
             if [[ $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo == *.asc ]];
             then
                 clear
