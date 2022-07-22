@@ -41,7 +41,7 @@ function inicio() {
         ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
         printf "\n"
         IFS= read -rp "Coloque o nome do diário que deseja entrar: " nomeDoDiario
-        if [ -z "$nomeDoDiario"];
+        if [ -z "$nomeDoDiario" ];
         then
             clear
             printf "${textoVermelho}Coloque algum nome!\n\n"
