@@ -48,14 +48,13 @@ function inicio() {
 }
 
 function criarDiario() {
-    clear
     printf "Obs: coloque 'voltar' para voltar\n\n"
     IFS= read -rp "Coloque o nome do diário que deseja criar: " nomeDoNovoDiario
 
     if [ -z "$nomeDoNovoDiario" ]; then
         clear
-        printf "${textoVermelho}Coloque algum nome!\n\n"
-        inicio
+        printf "${textoVermelho}Coloque algum nome!\n\n${textoSemCor}"
+        criarDiario
     fi
 
     if [[ $nomeDoNovoDiario == "voltar" ]]; then
@@ -169,7 +168,7 @@ function apagarDiario() {
         inicio
     else
         clear
-        printf "${textoVermelho}Esse diário não existe\n\n"
+        printf "${textoVermelho}Esse diário não existe\n\n${textoSemCor}"
         apagarDiario
     fi
 }
