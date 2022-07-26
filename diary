@@ -6,13 +6,14 @@ set -e
 # licença: GNU GPL v2.0
 
 textoVermelho="\033[0;31m"
+textoAzul="\033[1;34m"
 textoSemCor="\033[0m"
-diretorioDoScript=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+diretorioDoScript=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 clear
 
 function inicio() {
-    printf "${textoVermelho}diary - um simples diário\n"
+    printf "${textoAzul}diary - um simples diário\n"
     printf "feito por 1ukidev${textoSemCor}\n\n"
     printf "1 - Criar diário\n"
     printf "2 - Entrar em um diário existente\n"
@@ -20,123 +21,173 @@ function inicio() {
     printf "4 - Sair\n"
     IFS= read -rp "Selecione uma opção: " opcao
 
-    if [[ $opcao == 1 ]];
-    then
+    case $opcao in
+    1)
         clear
-        IFS= read -rp "Coloque o nome do diário que deseja criar: " nomeDoNovoDiario
-        if [ -z "$nomeDoNovoDiario" ];
-        then
-            clear
-            printf "${textoVermelho}Coloque algum nome!\n\n"
-            inicio
-        fi
-        mkdir $diretorioDoScript/Diários/$nomeDoNovoDiario
+        criarDiario
+        ;;
+    2)
         clear
-        printf "${textoVermelho}Diário $nomeDoNovoDiario criado com sucesso!\n\n"
-        inicio
-    elif [[ $opcao == 2 ]];
-    then
+        entrarNoDiario
+        ;;
+    3)
         clear
-        printf "Diários existentes:\n"
-        ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
-        printf "\n"
-        IFS= read -rp "Coloque o nome do diário que deseja entrar: " nomeDoDiario
-        if [ -z "$nomeDoDiario" ];
-        then
-            clear
-            printf "${textoVermelho}Coloque algum nome!\n\n"
-            inicio
-        fi
-        if [ -d $diretorioDoScript/Diários/$nomeDoDiario ];
-        then
-            clear
-            printf "Total de arquivos: "
-	    ls $diretorioDoScript/Diários/$nomeDoDiario | wc -l
-            printf "\nArquivos existentes:\n"
-            ls -p $diretorioDoScript/Diários/$nomeDoDiario | grep -v / || true
-            printf "\n"
-            IFS= read -rp "Qual arquivo deseja criar/editar? " nomeDoArquivo
-            if [ -z "$nomeDoArquivo" ];
-            then
-                clear
-                printf "${textoVermelho}Coloque algum nome!\n\n"
-                inicio
-            fi
-            if [[ $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo == *.asc ]];
-            then
-                clear
-                printf "${textoVermelho}Descriptografando arquivo...\n"
-                gpg --output $(basename $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo .asc) --decrypt $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo 
-                nvim $(basename $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo .asc)
-                printf "${textoVermelho}Apagando arquivo não criptografado...\n"
-                srm $(basename $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo .asc)
-                clear
-                printf "${textoVermelho}Editado com sucesso!\n\n"
-                inicio
-            else
-                nvim $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
-                clear
-                printf "${textoVermelho}Criptografando arquivo...\n"
-                gpg -as $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
-                printf "${textoVermelho}Apagando arquivo não criptografado...\n"
-                srm $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
-                clear
-                printf "${textoVermelho}Editado com sucesso!\n\n"
-                inicio
-            fi
-        else
-            clear
-            printf "${textoVermelho}Esse diário não existe :(\n\n"
-            inicio
-        fi
-    elif [[ $opcao == 3 ]];
-    then
-        clear
-        printf "Diários existentes:\n"
-        ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
-        printf "\n"
-        IFS= read -rp "Coloque o nome do diário que deseja apagar: " nomeDoDiarioParaApagar
-        if [ -z "$nomeDoDiarioParaApagar" ];
-        then
-            clear
-            printf "${textoVermelho}Coloque algum nome!\n\n"
-            inicio
-        fi
-        if [ -d $diretorioDoScript/Diários/$nomeDoDiarioParaApagar ];
-	then
-	    srm -r $diretorioDoScript/Diários/$nomeDoDiarioParaApagar
-	    clear
-	    printf "${textoVermelho}Diário $nomeDoDiarioParaApagar apagado com sucesso!\n\n"
-	    inicio
-   	else
-	    clear
-	    printf "${textoVermelho}Esse diário não existe\n\n"
-	    inicio
-	fi
-    elif [[ $opcao == 4 ]];
-    then
+        apagarDiario
+        ;;
+    4)
         clear
         printf "${textoVermelho}Até mais tarde!\n"
         exit
-    else
+        ;;
+    *)
         clear
         printf "${textoVermelho}Opção inválida :(\n\n"
         inicio
+        ;;
+    esac
+}
+
+function criarDiario() {
+    clear
+    printf "Obs: coloque 'voltar' para voltar\n\n"
+    IFS= read -rp "Coloque o nome do diário que deseja criar: " nomeDoNovoDiario
+
+    if [ -z "$nomeDoNovoDiario" ]; then
+        clear
+        printf "${textoVermelho}Coloque algum nome!\n\n"
+        inicio
+    fi
+
+    if [[ $nomeDoNovoDiario == "voltar" ]]; then
+        clear
+        inicio
+    fi
+
+    mkdir $diretorioDoScript/Diários/$nomeDoNovoDiario
+    clear
+    printf "${textoVermelho}Diário $nomeDoNovoDiario criado com sucesso!\n\n"
+    inicio
+}
+
+function entrarNoDiario() {
+    printf "Obs: coloque 'voltar' para voltar\n\n"
+    printf "Diários existentes:\n"
+    ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
+    printf "\n"
+    IFS= read -rp "Coloque o nome do diário que deseja entrar: " nomeDoDiario
+
+    if [ -z "$nomeDoDiario" ]; then
+        clear
+        printf "${textoVermelho}Coloque algum nome!\n\n${textoSemCor}"
+        entrarNoDiario
+    fi
+
+    if [[ $nomeDoDiario == "voltar" ]]; then
+        clear
+        inicio
+    fi
+
+    if [ -d $diretorioDoScript/Diários/$nomeDoDiario ]; then
+        clear
+        dentroDoDiario
+    else
+        clear
+        printf "${textoVermelho}Esse diário não existe :(\n\n${textoSemCor}"
+        entrarNoDiario
+    fi
+}
+
+function dentroDoDiario() {
+    printf "Obs: coloque 'voltar' para voltar\n\n"
+    printf "Total de arquivos: "
+    ls $diretorioDoScript/Diários/$nomeDoDiario | wc -l
+    printf "\nArquivos existentes:\n"
+    ls -p $diretorioDoScript/Diários/$nomeDoDiario | grep -v / || true
+    printf "\n"
+    IFS= read -rp "Qual arquivo deseja criar/editar? " nomeDoArquivo
+
+    if [ -z "$nomeDoArquivo" ]; then
+        clear
+        printf "${textoVermelho}Coloque algum nome!\n\n${textoSemCor}"
+        dentroDoDiario
+    fi
+
+    if [[ $nomeDoArquivo == "voltar" ]]; then
+        clear
+        entrarNoDiario
+    fi
+
+    if [[ $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo == *.asc ]]; then
+        clear
+        printf "${textoVermelho}Descriptografando arquivo...\n"
+        gpg --output $(basename $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo .asc) --decrypt $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
+        nvim $(basename $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo .asc)
+        printf "${textoVermelho}Apagando arquivo não criptografado...\n"
+        srm $(basename $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo .asc)
+        clear
+        printf "${textoVermelho}Editado com sucesso!\n\n${textoSemCor}"
+        dentroDoDiario
+    else
+        nvim $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
+        clear
+        printf "${textoVermelho}Criptografando arquivo...\n"
+        gpg -as $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
+        printf "${textoVermelho}Apagando arquivo não criptografado...\n"
+        srm $diretorioDoScript/Diários/$nomeDoDiario/$nomeDoArquivo
+        clear
+        printf "${textoVermelho}Editado com sucesso!\n\n${textoSemCor}"
+        dentroDoDiario
+    fi
+}
+
+function apagarDiario() {
+    printf "Obs: coloque 'voltar' para voltar\n\n"
+    printf "Diários existentes:\n"
+    ls -F1 $diretorioDoScript/Diários | grep / | sed 's|/||g'
+    printf "\n"
+    IFS= read -rp "Coloque o nome do diário que deseja apagar: " nomeDoDiarioParaApagar
+
+    if [ -z "$nomeDoDiarioParaApagar" ]; then
+        clear
+        printf "${textoVermelho}Coloque algum nome!\n\n${textoSemCor}"
+        apagarDiario
+    fi
+
+    if [[ $nomeDoDiarioParaApagar == "voltar" ]]; then
+        clear
+        inicio
+    fi
+
+    if [ -d $diretorioDoScript/Diários/$nomeDoDiarioParaApagar ]; then
+        srm -r $diretorioDoScript/Diários/$nomeDoDiarioParaApagar
+        clear
+        printf "${textoVermelho}Diário $nomeDoDiarioParaApagar apagado com sucesso!\n\n"
+        inicio
+    else
+        clear
+        printf "${textoVermelho}Esse diário não existe\n\n"
+        apagarDiario
     fi
 }
 
 function verificarProgramas() {
-    if command -v ls > /dev/null && command -v basename > /dev/null && command -v nvim > /dev/null && command -v gpg > /dev/null && command -v srm > /dev/null;
-    then
+    printf "${textoVermelho}Verificando dependências..."
+
+    for name in ls basename nvim gpg srm; do
+        [[ $(command -v $name 2>/dev/null) ]] || {
+            printf "$name precisa ser instalado.\n"
+            deps=1
+        }
+    done
+
+    [[ $deps -ne 1 ]] && {
+        printf "tudo ok\n\n"
         inicio
-    else
-        printf "${textoVermelho}Alguma(s) dependência(s) não estão instalada(s) :(\n"
-    fi
+    }
 }
 
-function pastaDiarios() {
-    if [ -d $diretorioDoScript/Diários ];
-    then
+function verificarPastaDiarios() {
+    if [ -d $diretorioDoScript/Diários ]; then
         verificarProgramas
     else
         printf "${textoVermelho}Criando pasta Diários..."
@@ -146,4 +197,4 @@ function pastaDiarios() {
     fi
 }
 
-pastaDiarios
+verificarPastaDiarios
