@@ -18,7 +18,7 @@ function inicio() {
     printf "1 - Criar diário\n"
     printf "2 - Entrar em um diário existente\n"
     printf "3 - Apagar diário\n"
-    printf "4 - Sair\n"
+    printf "4 - Sair\n\n"
     IFS= read -rp "Selecione uma opção: " opcao
 
     case $opcao in
@@ -62,10 +62,16 @@ function criarDiario() {
         inicio
     fi
 
-    mkdir "$diretorioDoScript"/Diários/"$nomeDoNovoDiario"
-    clear
-    printf "${textoVermelho}Diário $nomeDoNovoDiario criado com sucesso!\n\n"
-    inicio
+    if [[ -d "$diretorioDoScript"/Diários/"$nomeDoNovoDiario" ]]; then
+        clear
+        printf "${textoVermelho}O diário $nomeDoNovoDiario já existe\n\n"
+        inicio
+    else
+        clear
+        mkdir "$diretorioDoScript"/Diários/"$nomeDoNovoDiario"
+        printf "${textoVermelho}Diário $nomeDoNovoDiario criado com sucesso!\n\n"
+        inicio
+    fi
 }
 
 function entrarNoDiario() {
@@ -120,11 +126,11 @@ function dentroDoDiario() {
         clear
         printf "${textoVermelho}Descriptografando arquivo...\n"
         gpg --output "$(basename "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo" .asc)" --decrypt "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
-        
+
         nvim "$(basename "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo" .asc)"
         printf "Apagando arquivo não criptografado...\n"
         srm "$(basename "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo" .asc)"
-        
+
         clear
         printf "Editado com sucesso!\n\n${textoSemCor}"
         dentroDoDiario
@@ -132,11 +138,11 @@ function dentroDoDiario() {
         nvim "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
         clear
         printf "${textoVermelho}Criptografando arquivo...\n"
-        
+
         gpg -as "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
         printf "Apagando arquivo não criptografado...\n"
         srm "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
-        
+
         clear
         printf "Editado com sucesso!\n\n${textoSemCor}"
         dentroDoDiario
@@ -162,9 +168,11 @@ function apagarDiario() {
     fi
 
     if [ -d "$diretorioDoScript"/Diários/"$nomeDoDiarioParaApagar" ]; then
+        clear
+        printf "${textoVermelho}Apagando...\n"
         srm -r "$diretorioDoScript"/Diários/"$nomeDoDiarioParaApagar"
         clear
-        printf "${textoVermelho}Diário $nomeDoDiarioParaApagar apagado com sucesso!\n\n"
+        printf "Diário $nomeDoDiarioParaApagar apagado com sucesso!\n\n"
         inicio
     else
         clear
