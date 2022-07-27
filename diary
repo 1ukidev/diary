@@ -173,31 +173,33 @@ function apagarDiario() {
     fi
 }
 
+function verificarPastaDiarios() {
+    if [ -d "$diretorioDoScript"/Diários ]; then
+        clear
+        inicio
+    else
+        printf "${textoVermelho}Criando pasta Diários..."
+        mkdir "$diretorioDoScript"/Diários
+        printf " criado com sucesso${textoSemCor}\n\n"
+        inicio
+    fi
+}
+
 function verificarProgramas() {
-    printf "${textoVermelho}Verificando dependências..."
+    printf "${textoVermelho}Verificando dependências... "
 
     for name in ls basename nvim gpg srm; do
         [[ $(command -v $name 2>/dev/null) ]] || {
-            printf "$name precisa ser instalado.\n"
+            printf "$name precisa ser instalado\n"
             deps=1
         }
     done
 
     [[ $deps -ne 1 ]] && {
         printf "tudo ok\n\n"
-        inicio
+        clear
+        verificarPastaDiarios
     }
 }
 
-function verificarPastaDiarios() {
-    if [ -d "$diretorioDoScript"/Diários ]; then
-        verificarProgramas
-    else
-        printf "${textoVermelho}Criando pasta Diários..."
-        mkdir "$diretorioDoScript"/Diários
-        printf " criado com sucesso${textoSemCor}\n\n"
-        verificarProgramas
-    fi
-}
-
-verificarPastaDiarios
+verificarProgramas
