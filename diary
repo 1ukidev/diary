@@ -191,15 +191,16 @@ function verificarPastaDiarios() {
 
 function verificarProgramas() {
     printf "${textoVermelho}Verificando dependências... "
+    deps=1
 
     for name in ls basename nvim gpg srm; do
         [[ $(command -v $name 2>/dev/null) ]] || {
             printf "$name precisa ser instalado\n"
-            deps=1
+            deps=0
         }
     done
 
-    [[ $deps -ne 1 ]] && {
+    [[ $deps == 1 ]] && {
         printf "tudo ok\n\n"
         clear
         verificarPastaDiarios
