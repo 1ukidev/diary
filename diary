@@ -127,6 +127,7 @@ function dentroDoDiario() {
         printf "${textoVermelho}Descriptografando arquivo...\n"
         gpg --output "$(basename "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo" .asc)" --decrypt "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
         nvim "$(basename "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo" .asc)"
+        
         printf "Apagando arquivo não criptografado...\n"
         srm "$(basename "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo" .asc)"
         clear
@@ -137,6 +138,7 @@ function dentroDoDiario() {
         clear
         printf "${textoVermelho}Criptografando arquivo...\n"
         gpg -as "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
+        
         printf "Apagando arquivo não criptografado...\n"
         srm "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
         clear
