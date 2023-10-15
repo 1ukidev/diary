@@ -137,7 +137,7 @@ function dentroDoDiario() {
         nvim "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
         clear
         printf "${textoVermelho}Criptografando arquivo...\n"
-        gpg -as "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
+        gpg -asc "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
         
         printf "Apagando arquivo não criptografado...\n"
         srm "$diretorioDoScript"/Diários/"$nomeDoDiario"/"$nomeDoArquivo"
